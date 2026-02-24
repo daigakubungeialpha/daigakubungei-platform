@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}管理画面{% endblock %}
+{% block content %}
+<div class="container-wide">
+    <h1>管理者ダッシュボード</h1>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 2rem 0;">
+        <div style="background: white; padding: 2rem; border-radius: 12px; text-align: center;">
+            <h2 style="font-size: 2.5rem; color: #667eea;">{{ stats.total_users }}</h2>
+            <p>総ユーザー数</p>
+        </div>
+        <div style="background: white; padding: 2rem; border-radius: 12px; text-align: center;">
+            <h2 style="font-size: 2.5rem; color: #f5576c;">{{ stats.total_novels }}</h2>
+            <p>総作品数</p>
+        </div>
+        <div style="background: white; padding: 2rem; border-radius: 12px; text-align: center;">
+            <h2 style="font-size: 2.5rem; color: #20bf6b;">{{ stats.total_comments }}</h2>
+            <p>総コメント数</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

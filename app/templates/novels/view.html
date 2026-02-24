@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="editor-wrapper" style="padding: 60px 80px; background: #fff; box-shadow: 0 4px 30px rgba(0,0,0,0.05); position: relative;">
+    
+    {% if current_user.is_authenticated and current_user.id == novel.author_id %}
+    <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
+        <a href="{{ url_for('novels.edit', novel_id=novel.id) }}" class="btn-primary" style="background: #fff; color: #333; border: 1px solid #ddd; font-size: 0.8rem; padding: 6px 12px; box-shadow:none;">編集</a>
+    </div>
+    {% endif %}
+
+    <div style="position: absolute; top: 20px; left: 20px; display: flex; gap: 5px; background: #f9f9f9; padding: 4px; border-radius: 20px;">
+        <button onclick="changeFontSize('s')" class="font-size-btn" style="border:none; background:none; cursor:pointer; font-size:0.8rem; padding:4px 8px;">あ</button>
+        <button onclick="changeFontSize('m')" class="font-size-btn" style="border:none; background:none; cursor:pointer; font-size:1rem; padding:4px 8px; font-weight:bold;">あ</button>
+        <button onclick="changeFontSize('l')" class="font-size-btn" style="border:none; background:none; cursor:pointer; font-size:1.2rem; padding:4px 8px;">あ</button>
+    </div>
+
+    <div style="border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 40px; text-align: center;">
+        <h1 style="font-size: 2.2rem; margin-bottom: 15px; font-family: 'Shippori Mincho', serif; letter-spacing: 0.1em;">{{ novel.title }}</h1>
+        <div style="color: #666; font-size: 0.9rem;">
+            <i class="fa-solid fa-user"></i> {{ novel.author.username }}
+            <span style="margin-left: 15px;"><i class="fa-regular fa-clock"></i> {{ novel.created_at.strftime('%Y.%m.%d') }}</span>
+        </div>
+    </div>
+
+    <div id="novel-content" class="text-size-m" style="white-space: pre-wrap; margin-bottom: 100px;">{{ novel.content }}</div>
+
+    <div style="padding-top: 40px; border-top: 1px solid #eee; text-align: center;">
+        {% if current_user.is_authenticated %}
+        <button id="like-button" onclick="toggleLike()" style="background: {% if liked %}#ffebee{% else %}#f5f5f5{% endif %}; border: 1px solid #ddd; padding: 8px 24px; border-radius: 30px; cursor: pointer; color: {% if liked %}#e74c3c{% else %}#666{% endif %}; font-size: 1rem;">
+            <i class="fa-{% if liked %}solid{% else %}regular{% endif %} fa-heart" id="like-icon"></i> <span id="like-count">{{ novel.likes|length }}</span>
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+<div class="floating-comment-btn" onclick="openDrawer()"><i class="fa-regular fa-comment"></i></div>
+
+<div id="quote-btn" onmousedown="event.preventDefault(); openDrawerWithQuote()" style="position: absolute; display: none; background: var(--ink); color: #fff; padding: 8px 16px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; z-index: 9999; transform: translateX(-50%); box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+    <i class="fa-solid fa-pen"></i> 引用する
+    <div style="position: absolute; bottom: -5px; left: 50%; margin-left: -5px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid var(--ink);"></div>
+</div>
+
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<div class="comment-drawer" id="comment-drawer">
+    <div class="drawer-header">
+        <span>コメント <span id="comment-count" style="color:var(--accent);">{{ novel.comments|length }}</span></span>
+        <span onclick="closeDrawer()" style="cursor:pointer; font-size:1.2rem; padding: 5px;">&times;</span>
+    </div>
+    <div class="drawer-body" id="drawer-body">
+        {% for comment in novel.comments if comment.parent_id is none %}
+        <div class="comment-item" id="comment-{{ comment.id }}">
+            <div class="comment-meta">
+                <strong>{{ comment.author.username }}</strong>
+                <span>{{ comment.created_at.strftime('%m/%d') }}</span>
+            </div>
+            {% if comment.quote_text %}
+            <div class="quote-box" onclick="scrollToQuote('{{ comment.quote_text|replace("'", "\\'") }}')" style="cursor:pointer;">
+                "{{ comment.quote_text }}"
+            </div>
+            {% endif %}
+            <div class="comment-content">{{ comment.content }}</div>
+            <div style="text-align: right; margin-top: 5px;">
+                <span style="font-size: 0.75rem; color: #aaa; cursor: pointer;" onclick="setReply('{{ comment.id }}', '{{ comment.author.username }}')">返信</span>
+            </div>
+            <div class="reply-list" id="reply-list-{{ comment.id }}">
+                {% for reply in comment.replies %}
+                <div style="margin-top: 8px; border-top: 1px dashed #eee; padding-top: 8px; margin-left: 10px; font-size: 0.85rem; color: #666;">
+                    {{ reply.author.username }}: {{ reply.content }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="drawer-footer">
+        <div id="quote-preview" style="display:none; font-size:0.75rem; background:#f9f9f9; padding:8px; margin-bottom:10px; border-left:2px solid var(--accent); color: #666;">
+            引用中: <span id="quote-preview-text"></span>
+            <span onclick="clearQuote()" style="float:right; cursor:pointer;">&times;</span>
+        </div>
+        <form id="comment-form" onsubmit="submitComment(event)" class="comment-form-group" style="display:flex; gap:10px;">
+            <input type="hidden" name="quote_text" id="input-quote">
+            <input type="hidden" name="parent_id" id="input-parent">
+            <input type="text" name="content" id="input-content" class="comment-input" placeholder="感想を入力..." required>
+            <button type="submit" style="background:var(--ink); color:white; border:none; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                <i class="fa-solid fa-paper-plane" style="font-size: 0.9rem;"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const contentArea = document.getElementById('novel-content');
+    const quoteBtn = document.getElementById('quote-btn');
+    const drawer = document.getElementById('comment-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+
+    // --- 文字サイズ ---
+    function changeFontSize(s) {
+        contentArea.classList.remove('text-size-s', 'text-size-m', 'text-size-l');
+        contentArea.classList.add('text-size-' + s);
+        localStorage.setItem('novel-font-size', s);
+    }
+    changeFontSize(localStorage.getItem('novel-font-size') || 'm');
+
+    // --- ドラッグ検知 & 解除ロジックの改善 ---
+    
+    // 1. テキスト選択が変わった時（選択解除も含めて）監視
+    document.addEventListener('selectionchange', () => {
+        const selection = window.getSelection();
+        
+        // 選択範囲がない、または折りたたまれている（カーソルのみ）場合はボタンを消す
+        if (selection.isCollapsed) {
+            quoteBtn.style.display = 'none';
+        }
+    });
+
+    // 2. マウスアップ時の処理（選択範囲がある場合のみボタン表示）
+    document.addEventListener('mouseup', (e) => {
+        // ドロワーが開いている時は無視
+        if (drawer.classList.contains('active')) return;
+
+        // 少し待ってから判定（クリック直後の選択解除を待つため）
+        setTimeout(() => {
+            const selection = window.getSelection();
+            const text = selection.toString().trim();
+            
+            // 選択テキストがあり、かつ本文エリア内の場合
+            if (text.length > 0 && contentArea.contains(selection.anchorNode)) {
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                
+                quoteBtn.style.display = 'block';
+                quoteBtn.style.top = (rect.top + window.scrollY - 45) + 'px';
+                quoteBtn.style.left = (rect.left + (rect.width / 2)) + 'px';
+            } else {
+                // ここでも念のため非表示
+                quoteBtn.style.display = 'none';
+            }
+        }, 10);
+    });
+
+    // 3. 引用ボタン以外をクリックしたら選択解除＆ボタン非表示（念押し）
+    document.addEventListener('mousedown', (e) => {
+        if (e.target !== quoteBtn && !quoteBtn.contains(e.target)) {
+            // ボタン以外をクリックした瞬間、ボタンは消す
+            quoteBtn.style.display = 'none';
+        }
+    });
+
+    // --- 以下、既存の機能 ---
+
+    async function toggleLike() {
+        const res = await fetch("{{ url_for('novels.like', novel_id=novel.id) }}", { method: 'POST' });
+        const d = await res.json();
+        document.getElementById('like-count').innerText = d.count;
+        const btn = document.getElementById('like-button');
+        if (d.status === 'liked') {
+             btn.style.color = '#e74c3c'; btn.style.background = '#ffebee';
+             document.getElementById('like-icon').classList.replace('fa-regular', 'fa-solid');
+        } else {
+             btn.style.color = '#666'; btn.style.background = '#f5f5f5';
+             document.getElementById('like-icon').classList.replace('fa-solid', 'fa-regular');
+        }
+    }
+
+    function scrollToQuote(t) {
+        const tw = document.createTreeWalker(contentArea, NodeFilter.SHOW_TEXT);
+        let n; while (n = tw.nextNode()) {
+            const i = n.nodeValue.indexOf(t);
+            if (i !== -1) {
+                const r = document.createRange(); r.setStart(n, i); r.setEnd(n, i + t.length);
+                const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+                window.scrollTo({ top: r.getBoundingClientRect().top + window.scrollY - 150, behavior: 'smooth' });
+                return;
+            }
+        }
+    }
+
+    function openDrawer() { 
+        drawer.classList.add('active'); 
+        overlay.classList.add('active'); 
+    }
+    
+    function closeDrawer() { 
+        drawer.classList.remove('active'); 
+        overlay.classList.remove('active');
+        setTimeout(() => { clearQuote(); }, 300);
+    }
+
+    function openDrawerWithQuote() {
+        const t = window.getSelection().toString().trim();
+        document.getElementById('input-quote').value = t;
+        document.getElementById('quote-preview').style.display = 'block';
+        document.getElementById('quote-preview-text').innerText = t.substring(0,30) + (t.length>30?'...':'');
+        openDrawer();
+    }
+
+    function clearQuote() {
+        document.getElementById('input-quote').value = '';
+        document.getElementById('quote-preview').style.display = 'none';
+    }
+
+    function setReply(id, u) { 
+        document.getElementById('input-parent').value = id; 
+        document.getElementById('input-content').placeholder = '@' + u + ' へ返信...'; 
+        document.getElementById('input-content').focus(); 
+    }
+
+    async function submitComment(e) {
+        e.preventDefault();
+        const f = document.getElementById('comment-form');
+        const res = await fetch("{{ url_for('comments.create_comment', novel_id=novel.id) }}", { method: 'POST', body: new FormData(f) });
+        if (res.ok) {
+            const d = await res.json();
+            // 簡易的なHTML追加処理
+            location.reload(); 
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<header class="page-header">
+    <h1 class="site-title">文芸プラットフォーム</h1>
+    <p class="site-subtitle">― 言葉を紡ぎ、物語を編む ―</p>
+    </header>
+
+<div class="home-layout">
+    
+    <div>
+        <h2 class="section-title">
+            <i class="fa-regular fa-clock"></i> 最新の作品
+        </h2>
+        <div class="novel-list">
+            {% for novel in latest_novels %}
+            <div class="novel-card-mini">
+                <div style="margin-bottom: 2px;">
+                    {% if novel.novel_type == 'series' %}
+                        <span class="card-tag series-tag">連載</span>
+                    {% else %}
+                        <span class="card-tag">短編</span>
+                    {% endif %}
+                    <span style="font-size: 0.8rem; color: #aaa;">{{ novel.genre }}</span>
+                </div>
+                <div class="card-title">
+                    <a href="{{ url_for('novels.novel_detail', novel_id=novel.id) }}">{{ novel.title }}</a>
+                </div>
+                <div class="card-footer">
+                    <span>{{ novel.author.username }}</span>
+                    <span><i class="fa-solid fa-heart" style="color: #e74c3c;"></i> {{ novel.likes|length }}</span>
+                </div>
+            </div>
+            {% else %}
+                <p style="color: #ccc; text-align: center;">まだ投稿がありません。</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div>
+        <h2 class="section-title">
+            <i class="fa-solid fa-crown"></i> 人気の作品
+        </h2>
+        <div class="novel-list">
+            {% for novel in popular_novels %}
+            <div class="novel-card-mini" style="display: flex; align-items: baseline;">
+                <span class="rank-badge rank-{{ loop.index }}">{{ loop.index }}</span>
+                
+                <div style="flex-grow: 1;">
+                    <div class="card-title" style="margin: 0; font-size: 1.15rem;">
+                        <a href="{{ url_for('novels.novel_detail', novel_id=novel.id) }}">
+                            {{ novel.title }}
+                        </a>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #999; margin-top: 5px;">
+                        by {{ novel.author.username }} <span style="margin: 0 5px;">|</span> <i class="fa-solid fa-heart" style="color: #e74c3c;"></i> {{ novel.likes|length }}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+                <p style="color: #ccc; text-align: center;">ランキング集計中...</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

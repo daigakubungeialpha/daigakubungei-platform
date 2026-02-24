@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mypage-header-card">
+    <div class="mypage-avatar-circle">
+        {{ current_user.username[0] }}
+    </div>
+    <h1 style="font-size: 1.8rem; margin: 0; font-family: 'Shippori Mincho', serif;">{{ current_user.username }}</h1>
+    <p style="color: var(--ink-light); font-size: 0.9rem; margin-top: 5px;">
+        書斎開設日: {{ current_user.created_at.strftime('%Y年%m月%d日') }}
+    </p>
+
+    <div class="mypage-stats">
+        <div class="stat-item">
+            <span class="stat-value">{{ my_novels|length }}</span>
+            <span class="stat-label">執筆数</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">
+                {% set total_likes = namespace(value=0) %}
+                {% for n in my_novels %}{% set total_likes.value = total_likes.value + n.likes|length %}{% endfor %}
+                {{ total_likes.value }}
+            </span>
+            <span class="stat-label">総いいね</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">{{ liked_novels|length }}</span>
+            <span class="stat-label">お気に入り</span>
+        </div>
+    </div>
+</div>
+
+<div style="margin-bottom: 30px; border-bottom: 1px solid var(--line); display: flex; gap: 30px;">
+    <button onclick="showTab('my-works')" id="btn-my-works" style="background:none; border:none; padding:10px 0; font-family:inherit; font-size:1.1rem; cursor:pointer; border-bottom:2px solid var(--ink); font-weight:bold; color:var(--ink);">
+        執筆した作品
+    </button>
+    <button onclick="showTab('liked-works')" id="btn-liked-works" style="background:none; border:none; padding:10px 0; font-family:inherit; font-size:1.1rem; cursor:pointer; border-bottom:2px solid transparent; color:var(--ink-light);">
+        蒐集した作品
+    </button>
+</div>
+
+<div id="tab-my-works" class="mypage-tab-content">
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+        {% for novel in my_novels %}
+        <div style="background: #fff; padding: 20px; border: 1px solid var(--line); box-shadow: 2px 2px 0 rgba(0,0,0,0.05);">
+            <div style="margin-bottom: 5px;">
+                <span style="font-size: 0.7rem; border: 1px solid var(--line); padding: 1px 5px; color: var(--ink-light);">{{ novel.genre }}</span>
+                {% if novel.novel_type == 'series' %}<span style="font-size: 0.7rem; background: var(--line); padding: 1px 5px; color: var(--ink);">連載</span>{% endif %}
+            </div>
+            <h3 style="margin: 10px 0; font-size: 1.2rem;">
+                <a href="{{ url_for('novels.novel_detail', novel_id=novel.id) }}" style="text-decoration: none; color: var(--ink);">{{ novel.title }}</a>
+            </h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 0.85rem; color: var(--ink-light);">
+                <span><i class="fa-solid fa-heart" style="color: var(--accent);"></i> {{ novel.likes|length }}</span>
+                <a href="{{ url_for('novels.edit', novel_id=novel.id) }}" style="color: var(--ink-light); text-decoration: none;"><i class="fa-solid fa-pen"></i> 推敲する</a>
+            </div>
+        </div>
+        {% else %}
+        <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: var(--ink-light); border: 1px dashed var(--line);">
+            まだ作品がありません。<br>
+            <a href="{{ url_for('novels.create') }}" style="color: var(--accent); font-weight: bold; margin-top: 10px; display: inline-block;">筆を執る</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div id="tab-liked-works" class="mypage-tab-content" style="display: none;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+        {% for novel in liked_novels %}
+        <div style="background: #fff; padding: 20px; border: 1px solid var(--line);">
+            <h3 style="margin: 0 0 10px 0; font-size: 1.2rem;">
+                <a href="{{ url_for('novels.novel_detail', novel_id=novel.id) }}" style="text-decoration: none; color: var(--ink);">{{ novel.title }}</a>
+            </h3>
+            <div style="font-size: 0.85rem; color: var(--ink-light);">
+                著：{{ novel.author.username }}
+            </div>
+            <div style="margin-top: 10px; font-size: 0.85rem; color: #666; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                {{ novel.summary or novel.content }}
+            </div>
+        </div>
+        {% else %}
+        <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: var(--ink-light);">
+            お気に入りの作品はまだありません。
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function showTab(tabName) {
+    document.querySelectorAll('.mypage-tab-content').forEach(el => el.style.display = 'none');
+    document.getElementById('tab-' + tabName).style.display = 'block';
+    
+    const btnMy = document.getElementById('btn-my-works');
+    const btnLiked = document.getElementById('btn-liked-works');
+    
+    if (tabName === 'my-works') {
+        btnMy.style.borderBottom = '2px solid var(--ink)'; btnMy.style.color = 'var(--ink)';
+        btnLiked.style.borderBottom = '2px solid transparent'; btnLiked.style.color = 'var(--ink-light)';
+    } else {
+        btnLiked.style.borderBottom = '2px solid var(--ink)'; btnLiked.style.color = 'var(--ink)';
+        btnMy.style.borderBottom = '2px solid transparent'; btnMy.style.color = 'var(--ink-light)';
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="width: 100vw; margin-left: calc(50% - 50vw);">
+    
+    <form method="POST" class="writer-layout">
+        
+        <div class="writer-sidebar">
+            <h3 style="font-size: 1.1rem; color: var(--ink); margin-bottom: 30px; font-weight: bold; border-bottom: 2px solid var(--ink); padding-bottom: 10px;">
+                推敲（編集）
+            </h3>
+            
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label class="input-label">ジャンル</label>
+                <select name="genre" class="modern-select">
+                    <option value="純文学" {% if novel.genre == '純文学' %}selected{% endif %}>純文学</option>
+                    <option value="現代ドラマ" {% if novel.genre == '現代ドラマ' %}selected{% endif %}>現代ドラマ</option>
+                    <option value="恋愛" {% if novel.genre == '恋愛' %}selected{% endif %}>恋愛</option>
+                    <option value="ミステリー" {% if novel.genre == 'ミステリー' %}selected{% endif %}>ミステリー</option>
+                    <option value="SF・ファンタジー" {% if novel.genre == 'SF・ファンタジー' %}selected{% endif %}>SF・ファンタジー</option>
+                    <option value="エッセイ" {% if novel.genre == 'エッセイ' %}selected{% endif %}>エッセイ</option>
+                    <option value="詩・短歌" {% if novel.genre == '詩・短歌' %}selected{% endif %}>詩・短歌</option>
+                    <option value="その他" {% if novel.genre == 'その他' %}selected{% endif %}>その他</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label class="input-label">タグ</label>
+                <input type="text" name="tags" class="modern-input" value="{{ novel.tags or '' }}" placeholder="#大学生 #日常">
+            </div>
+
+            <div style="margin-top: 50px;">
+                <button type="submit" class="btn-primary">
+                    更新を保存
+                </button>
+                
+                <a href="{{ url_for('novels.novel_detail', novel_id=novel.id) }}" style="display: block; text-align: center; margin-top: 20px; color: var(--ink-light); text-decoration: none; font-size: 0.9rem;">
+                    キャンセル
+                </a>
+                
+                <div style="margin-top: 40px; border-top: 1px dashed var(--line); padding-top: 20px; text-align: center;">
+                    <button type="submit" formaction="{{ url_for('novels.delete', novel_id=novel.id) }}" onclick="return confirm('本当に削除しますか？この操作は取り消せません。');" style="background: none; border: none; color: #999; font-size: 0.8rem; cursor: pointer; text-decoration: underline;">
+                        この作品を破棄（削除）
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="writer-main">
+            <div class="writer-editor-container">
+                <input type="text" name="title" class="writer-title-input" value="{{ novel.title }}" placeholder="タイトル" required>
+                
+                <div class="form-group" style="margin-bottom: 30px;">
+                    <label class="input-label">あらすじ・キャプション</label>
+                    <textarea name="summary" class="modern-textarea short" rows="3" style="width: 100%; border: none; border-bottom: 1px solid #eee; background: transparent; padding: 10px 0;">{{ novel.summary or '' }}</textarea>
+                </div>
+
+                {% if novel.novel_type != 'series' %}
+                <div>
+                    <label class="input-label" style="margin-top: 20px;">本文</label>
+                    <textarea name="content" class="writer-body-textarea" placeholder="ここに物語を書いてください...">{{ novel.content }}</textarea>
+                </div>
+                {% else %}
+                <div style="padding: 40px; text-align: center; color: var(--ink-light); background: #fafafa; border: 1px dashed #ddd;">
+                    <p>※ これは連載の「表紙（親）」データです。</p>
+                    <p>各エピソードの本文は、作品ページの「目次」から編集してください。</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,847 @@
+/* --- 明治モダン・文芸テーマ --- */
+:root {
+    /* 明治の新聞紙色（生成り） */
+    --paper: #fcf9ee; 
+    /* 経年変化した紙のような少し濃いベージュ（枠線など） */
+    --paper-dark: #e8e4d0;
+    /* 墨色（完全な黒ではなく、温かみのある黒） */
+    --ink: #2b2b2b;
+    /* 活版印刷の薄墨 */
+    --ink-light: #595959;
+    /* 朱色（印鑑のような深い赤） */
+    --accent: #b84c3a;
+    /* 罫線 */
+    --line: #dcd6c0;
+}
+
+body {
+    font-family: 'Shippori Mincho', serif; /* 明朝体必須 */
+    line-height: 1.8;
+    color: var(--ink);
+    background-color: var(--paper);
+    /* 和紙のような微細なノイズを加える */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+    margin: 0;
+}
+
+/* --- レイアウト --- */
+.container { max-width: 980px; margin: 0 auto; padding: 20px; }
+
+/* ヘッダー：古い新聞の題字欄のように */
+nav {
+    background: rgba(252, 249, 238, 0.9); /* 背景色を透過 */
+    border-bottom: 1px double var(--ink-light); /* 二重線でレトロに */
+    padding: 15px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+.nav-container { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+.nav-logo { font-size: 1.6rem; font-weight: 900; text-decoration: none; color: var(--ink); letter-spacing: 0.15em; }
+
+/* --- ボタン：印章スタイル --- */
+.btn-accent {
+    background: transparent;
+    color: var(--accent);
+    padding: 6px 18px;
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+.btn-accent:hover {
+    background: var(--accent);
+    color: var(--paper);
+}
+
+.btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 2px;
+    cursor: pointer;
+    font-family: 'Shippori Mincho', serif;
+    font-weight: bold;
+    width: 100%;
+}
+
+/* --- ホーム画面 --- */
+.page-header { text-align: center; margin: 50px 0; border-bottom: 1px solid var(--line); padding-bottom: 30px; }
+.site-title { font-size: 3rem; margin-bottom: 5px; letter-spacing: 0.2em; font-weight: 900; color: var(--ink); text-shadow: 1px 1px 0 rgba(0,0,0,0.1); }
+.site-subtitle { color: var(--ink-light); font-size: 0.9rem; letter-spacing: 0.1em; margin-top: 10px; }
+
+.home-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 40px;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    color: var(--ink);
+    border-bottom: 2px solid var(--ink); /* 黒い太線 */
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+/* カード：活版印刷風 */
+.novel-list { display: flex; flex-direction: column; gap: 20px; }
+.novel-card-mini {
+    background: transparent;
+    border-bottom: 1px solid var(--line);
+    padding: 15px 0;
+    transition: all 0.2s;
+}
+.novel-card-mini:hover {
+    background: rgba(0,0,0,0.02);
+    padding-left: 10px; /* ホバーで少し動く */
+}
+.novel-card-mini:last-child { border-bottom: none; }
+
+.card-title { font-size: 1.3rem; font-weight: bold; margin: 5px 0; line-height: 1.4; }
+.card-title a { text-decoration: none; color: var(--ink); }
+.card-title a:hover { text-decoration: underline; text-decoration-color: var(--accent); }
+
+.rank-badge {
+    font-size: 1.2rem; font-weight: bold; color: var(--accent); margin-right: 10px; font-family: serif; font-style: italic;
+}
+
+/* --- マイページ（書斎風） --- */
+.mypage-header-card {
+    background: #fff; /* ここだけ白紙 */
+    border: 1px solid var(--line);
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 40px;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.05); /* 影を落として紙が浮いている感じ */
+    position: relative;
+}
+.mypage-avatar-circle {
+    width: 80px; height: 80px; background: var(--ink); color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; margin: 0 auto 20px; font-family: serif;
+}
+.mypage-stats {
+    display: flex; justify-content: center; gap: 40px; margin-top: 25px; padding-top: 25px; border-top: 1px solid var(--line);
+}
+.stat-item { text-align: center; }
+.stat-value { font-size: 1.5rem; font-weight: bold; color: var(--accent); display: block; }
+.stat-label { font-size: 0.8rem; color: var(--ink-light); }
+
+/* --- 執筆・閲覧画面 --- */
+.editor-wrapper {
+    background: #fff; /* 原稿用紙の白 */
+    padding: 60px 80px;
+    border: 1px solid var(--line);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+}
+
+/* --- YouTube Shorts風 コメントドロワー（明治ガラスver） --- */
+.comment-drawer {
+    position: fixed; top: 0; right: -100%; width: 360px; height: 100vh;
+    background: rgba(255, 255, 255, 0.85); /* 半透明 */
+    backdrop-filter: blur(10px); /* すりガラス効果 */
+    z-index: 2001; transition: right 0.3s cubic-bezier(0.2, 0, 0, 1);
+    box-shadow: -5px 0 30px rgba(0,0,0,0.1);
+    display: flex; flex-direction: column;
+    border-left: 1px solid rgba(255,255,255,0.5);
+}
+.comment-drawer.active { right: 0; }
+
+.drawer-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.9rem; color: var(--ink-light);
+}
+
+.drawer-body {
+    flex-grow: 1; overflow-y: auto; padding: 0; /* 余白なしで詰める */
+}
+
+/* コメントアイテム（Shortsのようにコンパクト） */
+.comment-item {
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.03);
+    transition: background 0.2s;
+}
+.comment-item:hover { background: rgba(0,0,0,0.02); }
+
+.comment-meta {
+    font-size: 0.75rem; color: var(--ink-light); margin-bottom: 4px;
+    display: flex; justify-content: space-between;
+}
+.comment-content { font-size: 0.9rem; line-height: 1.4; color: var(--ink); }
+
+.quote-box {
+    font-size: 0.75rem; color: var(--ink-light);
+    border-left: 2px solid var(--accent);
+    padding-left: 8px; margin-bottom: 6px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.drawer-footer {
+    padding: 15px;
+    background: rgba(255,255,255,0.9);
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.comment-input {
+    background: rgba(0,0,0,0.03);
+    border: none; border-radius: 20px;
+    padding: 10px 15px; font-size: 0.9rem; width: 100%;
+}
+.comment-input:focus { background: #fff; outline: 1px solid var(--ink); }
+
+/* フローティングボタン */
+.floating-comment-btn {
+    position: fixed; bottom: 30px; right: 30px;
+    width: 50px; height: 50px;
+    background: var(--ink); color: var(--paper);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; cursor: pointer; z-index: 100;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+}
+.floating-comment-btn:hover { transform: scale(1.1); }
+
+/* --- 執筆・編集画面の完全復旧 --- */
+.writer-layout {
+    display: flex;
+    height: calc(100vh - 65px); /* ヘッダー分を引く */
+    margin-top: 0;
+    background: #fff;
+    border-top: 1px solid #eee;
+}
+
+.writer-sidebar {
+    width: 300px;
+    background: #fdfdfd; /* ほぼ白に近いグレー */
+    border-right: 1px solid #e0e0e0;
+    padding: 30px 20px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.02);
+}
+
+.writer-main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    position: relative;
+}
+
+.writer-editor-container {
+    flex-grow: 1;
+    padding: 50px 10%; /* 左右に程よい余白 */
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+/* タイトル入力欄（美しい明朝体） */
+.writer-title-input {
+    width: 100%;
+    font-size: 2rem;
+    font-weight: bold;
+    border: none;
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+    margin-bottom: 30px;
+    outline: none;
+    font-family: 'Shippori Mincho', serif;
+    background: transparent;
+    transition: border-color 0.3s;
+    color: #333;
+}
+.writer-title-input:focus {
+    border-bottom-color: var(--accent);
+}
+.writer-title-input::placeholder {
+    color: #ccc;
+}
+
+/* 本文入力欄 */
+.writer-body-textarea {
+    width: 100%;
+    min-height: 70vh;
+    border: none;
+    resize: none;
+    outline: none;
+    font-size: 1.15rem;
+    line-height: 2.2; /* ゆったりとした行間 */
+    font-family: 'Shippori Mincho', serif;
+    background: transparent;
+    color: #333;
+}
+.writer-body-textarea::placeholder {
+    color: #ddd;
+}
+
+/* サイドバーのフォーム要素 */
+.input-label {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #666;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.modern-select, .modern-input, .modern-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px; /* 丸みをつける */
+    font-size: 0.95rem;
+    background: #fff;
+    transition: all 0.2s;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+}
+.modern-select:focus, .modern-input:focus, .modern-textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(168, 57, 53, 0.1); /* 赤いうっすらとした影 */
+    outline: none;
+}
+
+/* 投稿形式のラジオボタン */
+.radio-group { display: flex; flex-direction: column; gap: 10px; }
+.radio-card { position: relative; cursor: pointer; }
+.radio-card input { position: absolute; opacity: 0; width: 0; height: 0; }
+.radio-text {
+    display: flex; align-items: center; justify-content: center;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #666;
+    background: #fff;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+.radio-card input:checked + .radio-text {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #fff5f5; /* 薄い赤背景 */
+}
+
+/* 戻るリンク */
+.cancel-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #999;
+    font-size: 0.85rem;
+    text-decoration: none;
+}
+.cancel-link:hover { color: #666; }
+
+/* --- 執筆・編集画面の完全復旧 --- */
+.writer-layout {
+    display: flex;
+    height: calc(100vh - 65px); /* ヘッダー分を引く */
+    margin-top: 0;
+    background: #fff;
+    border-top: 1px solid #eee;
+}
+
+.writer-sidebar {
+    width: 300px;
+    background: #fdfdfd; /* ほぼ白に近いグレー */
+    border-right: 1px solid #e0e0e0;
+    padding: 30px 20px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.02);
+}
+
+.writer-main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    position: relative;
+}
+
+.writer-editor-container {
+    flex-grow: 1;
+    padding: 50px 10%; /* 左右に程よい余白 */
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+/* タイトル入力欄（美しい明朝体） */
+.writer-title-input {
+    width: 100%;
+    font-size: 2rem;
+    font-weight: bold;
+    border: none;
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+    margin-bottom: 30px;
+    outline: none;
+    font-family: 'Shippori Mincho', serif;
+    background: transparent;
+    transition: border-color 0.3s;
+    color: #333;
+}
+.writer-title-input:focus {
+    border-bottom-color: var(--accent);
+}
+.writer-title-input::placeholder {
+    color: #ccc;
+}
+
+/* 本文入力欄 */
+.writer-body-textarea {
+    width: 100%;
+    min-height: 70vh;
+    border: none;
+    resize: none;
+    outline: none;
+    font-size: 1.15rem;
+    line-height: 2.2; /* ゆったりとした行間 */
+    font-family: 'Shippori Mincho', serif;
+    background: transparent;
+    color: #333;
+}
+.writer-body-textarea::placeholder {
+    color: #ddd;
+}
+
+/* サイドバーのフォーム要素 */
+.input-label {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #666;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.modern-select, .modern-input, .modern-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px; /* 丸みをつける */
+    font-size: 0.95rem;
+    background: #fff;
+    transition: all 0.2s;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+}
+.modern-select:focus, .modern-input:focus, .modern-textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(168, 57, 53, 0.1); /* 赤いうっすらとした影 */
+    outline: none;
+}
+
+/* 投稿形式のラジオボタン */
+.radio-group { display: flex; flex-direction: column; gap: 10px; }
+.radio-card { position: relative; cursor: pointer; }
+.radio-card input { position: absolute; opacity: 0; width: 0; height: 0; }
+.radio-text {
+    display: flex; align-items: center; justify-content: center;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #666;
+    background: #fff;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+.radio-card input:checked + .radio-text {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #fff5f5; /* 薄い赤背景 */
+}
+
+/* 戻るリンク */
+.cancel-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #999;
+    font-size: 0.85rem;
+    text-decoration: none;
+}
+.cancel-link:hover { color: #666; }
+
+/* --- ミニマル・モダン UI --- */
+
+/* ボタン：鋭角でストイックに */
+.btn-accent, .btn-primary {
+    display: inline-block;
+    background: var(--ink);
+    color: #fff;
+    border: 1px solid var(--ink);
+    padding: 10px 28px;
+    border-radius: 0; /* 完全な四角 */
+    font-family: 'Shippori Mincho', serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-accent:hover, .btn-primary:hover {
+    background: #fff;
+    color: var(--ink);
+    border-color: var(--ink);
+}
+
+/* フォーム入力欄：下線のみ、または極細の枠線 */
+.modern-input, .modern-textarea, .modern-select {
+    width: 100%;
+    padding: 12px 15px;
+    background: transparent;
+    border: 1px solid #ccc; /* 細いグレー */
+    border-radius: 0;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1rem;
+    color: var(--ink);
+    transition: border-color 0.3s;
+}
+
+.modern-input:focus, .modern-textarea:focus {
+    outline: none;
+    border-color: var(--ink); /* フォーカス時は黒 */
+    background: rgba(255,255,255,0.5);
+}
+
+/* 認証画面（ログイン・登録）のカード */
+.auth-wrapper {
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 50px;
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: 10px 10px 0 rgba(0,0,0,0.03); /* 控えめな硬い影 */
+    text-align: center;
+}
+
+.auth-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 40px;
+    letter-spacing: 0.15em;
+    color: var(--ink);
+}
+
+/* コメントドロワーのスタイリッシュ化（細く、鋭く） */
+.comment-drawer {
+    width: 340px; /* 幅を狭める */
+    background: rgba(255, 255, 255, 0.95);
+    border-left: 1px solid var(--line);
+    box-shadow: -5px 0 20px rgba(0,0,0,0.02);
+}
+
+.comment-item {
+    padding: 15px 20px; /* 上下の余白を少し詰める */
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.comment-input {
+    border-radius: 0; /* 丸みを消す */
+    border: 1px solid #ddd;
+    background: #fff;
+}
+
+/* ヘッダーのログインボタンなどもシンプルに */
+.nav-menu a {
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-left: 20px;
+    transition: color 0.2s;
+}
+.nav-menu a:hover {
+    color: var(--accent);
+}
+.nav-menu .btn-accent {
+    padding: 8px 20px;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--ink);
+}
+.nav-menu .btn-accent:hover {
+    background: var(--ink);
+    color: #fff;
+}
+
+/* --- 文豪モダン・認証UI --- */
+
+/* 入力フォーム：原稿用紙の罫線スタイル */
+.modern-input, .modern-textarea, .modern-select {
+    width: 100%;
+    padding: 10px 5px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--ink-light); /* 下線のみ */
+    border-radius: 0;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1.1rem;
+    color: var(--ink);
+    transition: all 0.3s;
+}
+
+.modern-input:focus, .modern-textarea:focus {
+    outline: none;
+    border-bottom-color: var(--accent); /* フォーカスで朱色に */
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.modern-input::placeholder {
+    color: rgba(0, 0, 0, 0.3);
+    font-size: 0.9rem;
+}
+
+/* ボタン：蔵書印・活版スタイル */
+.btn-primary {
+    display: block;
+    width: 100%;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 12px;
+    border: 1px solid var(--ink);
+    font-family: 'Shippori Mincho', serif;
+    font-weight: bold;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    /* 二重線でレトロな額縁感を出す */
+    box-shadow: 0 0 0 3px var(--paper), 0 0 0 4px var(--ink);
+    margin: 5px 0;
+}
+
+.btn-primary:hover {
+    background: var(--accent); /* ホバーで朱色（印鑑色）に変化 */
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 0 3px var(--paper), 0 0 0 4px var(--accent);
+}
+
+/* 認証カード：招待状スタイル */
+.auth-wrapper {
+    max-width: 420px;
+    margin: 60px auto;
+    padding: 50px 40px;
+    background: rgba(255, 255, 255, 0.6); /* 透け感のある和紙 */
+    border: 1px solid var(--line);
+    /* 四隅に装飾的な二重線 */
+    outline: 4px double var(--line);
+    outline-offset: -10px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.auth-title {
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 10px;
+    letter-spacing: 0.3em;
+    color: var(--ink);
+    border-bottom: 2px solid var(--ink);
+    display: inline-block;
+    padding-bottom: 10px;
+}
+
+.auth-subtitle {
+    font-size: 0.85rem;
+    color: var(--ink-light);
+    margin-bottom: 40px;
+    font-family: sans-serif;
+    letter-spacing: 0.1em;
+}
+
+/* リンク */
+.auth-link {
+    display: inline-block;
+    margin-top: 30px;
+    color: var(--ink-light);
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-bottom: 1px solid transparent;
+    transition: border 0.3s;
+}
+.auth-link:hover {
+    border-bottom-color: var(--accent);
+    color: var(--accent);
+}
+
+/* --- 修正：上品なモダン・ボタン --- */
+.btn-primary, .btn-accent {
+    display: inline-block;
+    background: var(--ink);
+    color: #fff;
+    padding: 10px 24px;
+    border: 1px solid var(--ink);
+    border-radius: 3px; /* ほんの少しだけ角を丸めて優しく */
+    font-family: 'Shippori Mincho', serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* 柔らかい影 */
+    text-decoration: none;
+    text-align: center;
+    width: auto; /* 幅はコンテンツに合わせる（必要ならwidth:100%で上書き） */
+}
+
+.btn-primary:hover, .btn-accent:hover {
+    background: #fff;
+    color: var(--ink);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* 投稿ボタン（赤）の特別設定 */
+.btn-accent {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+.btn-accent:hover {
+    color: var(--accent);
+}
+
+/* --- 修正：ドロワーのオーバーレイ（背景クリック用） --- */
+.drawer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(43, 43, 43, 0.2); /* 墨色を薄く */
+    backdrop-filter: blur(2px);
+    z-index: 2000; /* ドロワー(2001)より下、他より上 */
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+    cursor: pointer; /* クリックできることを示す */
+}
+.drawer-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* --- 修正：コメント欄の極限スリム化 --- */
+.comment-item {
+    padding: 10px 15px; /* 上下の余白を大幅に削減 */
+    border-bottom: 1px dotted var(--ink-light); /* 点線で軽やかに */
+    background: transparent;
+}
+.comment-item:last-child { border-bottom: none; }
+
+.comment-meta {
+    font-size: 0.7rem; /* 文字サイズを小さくして情報の優先度を下げる */
+    color: var(--ink-light);
+    margin-bottom: 2px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comment-content {
+    font-size: 0.9rem;
+    line-height: 1.5; /* 行間も少し詰める */
+    color: var(--ink);
+    margin: 0;
+}
+
+/* 引用ボックスもスリムに */
+.quote-box {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    margin-bottom: 4px;
+    border-left: 2px solid var(--accent);
+    background: rgba(0,0,0,0.02);
+    color: var(--ink-light);
+}
+
+/* --- 修正：ヘッダーのナビゲーションボタン --- */
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* ボタン間の隙間 */
+}
+
+/* 共通ボタンスタイル */
+.nav-btn {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 8px 20px;
+    transition: all 0.3s;
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+    display: inline-block;
+}
+
+/* ログインボタン：白地に黒枠（控えめだがはっきり見える） */
+.btn-login {
+    color: var(--ink);
+    border: 1px solid var(--ink);
+    background: transparent;
+}
+.btn-login:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+/* 新規登録ボタン：黒地に白文字（アクセントとして目立たせる） */
+.btn-register {
+    background: var(--ink);
+    color: #fff;
+    border: 1px solid var(--ink);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.1); /* 少し浮き上がらせる */
+}
+.btn-register:hover {
+    background: var(--accent); /* ホバーで朱色に */
+    border-color: var(--accent);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* ユーザー名の表示 */
+.nav-user-link {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: bold;
+    border-bottom: 1px solid transparent;
+    transition: border 0.3s;
+    margin-right: 15px;
+}
+.nav-user-link:hover {
+    border-bottom-color: var(--accent);
+}
+
+/* --- 投稿ボタンの色修正（赤） --- */
+.btn-accent {
+    background-color: #e74c3c; /* 明るい赤 */
+    border-color: #e74c3c;
+    color: #fff;
+}
+
+.btn-accent:hover {
+    background-color: #c0392b; /* ホバー時は少し濃い赤 */
+    border-color: #c0392b;
+    color: #fff;
+}
+
+/* --- 会員登録ボタンの修正（文字色を白に強制） --- */
+.btn-register {
+    color: #ffffff !important;
+    background-color: var(--ink);
+}
+
+.btn-register:hover {
+    color: #ffffff !important;
+    background-color: var(--accent);
+}

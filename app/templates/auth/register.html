@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div style="margin-bottom: 20px;">
+        <i class="fa-solid fa-pen-nib" style="font-size: 2rem; color: var(--accent);"></i>
+    </div>
+    <h2 class="auth-title">記名</h2>
+    <p class="auth-subtitle">新たな書き手として登録する</p>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div style="color: #e74c3c; margin-bottom: 20px; font-weight: bold; border: 1px solid #e74c3c; padding: 10px; background: #fff5f5;">
+                {% for message in messages %}{{ message }}<br>{% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST" style="margin-top: 30px;">
+        <div style="margin-bottom: 30px; text-align: left;">
+            <label style="font-size: 0.8rem; font-weight:bold; color: var(--ink); display: block; margin-bottom: 5px;">筆名（ユーザー名）</label>
+            <input type="text" name="username" class="modern-input" placeholder="太宰治" required>
+        </div>
+
+        <div style="margin-bottom: 30px; text-align: left;">
+            <label style="font-size: 0.8rem; font-weight:bold; color: var(--ink); display: block; margin-bottom: 5px;">連絡先（メールアドレス）</label>
+            <input type="email" name="email" class="modern-input" placeholder="name@example.com" required>
+        </div>
+        
+        <div style="margin-bottom: 40px; text-align: left;">
+            <label style="font-size: 0.8rem; font-weight:bold; color: var(--ink); display: block; margin-bottom: 5px;">合言葉（パスワード）</label>
+            <input type="password" name="password" class="modern-input" placeholder="••••••••" required>
+        </div>
+        
+        <button type="submit" class="btn-primary">
+            登録して始める
+        </button>
+    </form>
+    
+    <div>
+        <a href="{{ url_for('auth.login') }}" class="auth-link">
+            すでに書き手として登録済みの方
+        </a>
+    </div>
+</div>
+{% endblock %}

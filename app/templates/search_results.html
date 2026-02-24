@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<header class="page-header" style="margin-bottom: 40px;">
+    <h2 style="font-family: 'Shippori Mincho', serif; font-size: 1.5rem; color: #666;">
+        「{{ query }}」の検索結果
+    </h2>
+    <p style="color: #999; font-size: 0.9rem;">{{ novels|length }} 件の作品が見つかりました</p>
+</header>
+
+<div class="novel-grid">
+    {% for novel in novels %}
+    <article class="novel-card">
+        <div class="novel-title-area">
+            <a href="{{ url_for('novels.novel_detail', novel_id=novel.id) }}" class="novel-title">{{ novel.title }}</a>
+        </div>
+        <div class="novel-info-area">
+            <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">
+                <span style="border:1px solid #ddd; padding:2px 5px; border-radius:3px;">{{ '連載' if novel.novel_type == 'series' else '短編' }}</span>
+                {{ novel.genre }}
+            </div>
+            <div class="novel-meta">
+                <span><i class="fa-solid fa-user"></i> {{ novel.author.username }}</span>
+                <span style="float: right;"><i class="fa-solid fa-heart" style="color:#e74c3c;"></i> {{ novel.likes|length }}</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #666; margin-top: 10px; line-height: 1.6;">
+                {{ novel.summary[:70] if novel.summary else novel.content[:70] }}...
+            </p>
+        </div>
+    </article>
+    {% else %}
+    <div style="text-align: center; width: 100%; padding: 80px 0; color: #ccc;">
+        <i class="fa-solid fa-magnifying-glass" style="font-size: 3rem; margin-bottom: 20px;"></i>
+        <p>該当する作品が見つかりませんでした。</p>
+        <a href="{{ url_for('main.index') }}" style="color: var(--accent); font-size: 0.9rem; margin-top: 10px; display: inline-block;">ホームに戻る</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

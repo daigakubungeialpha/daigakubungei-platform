@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="width: 100vw; margin-left: calc(50% - 50vw);">
+
+    <form method="POST" class="writer-layout">
+
+        <div class="writer-sidebar" style="display: flex; flex-direction: column;">
+            <div style="margin-bottom: 30px;">
+                <h3 style="font-size: 0.85rem; color: #888; margin-bottom: 8px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">連載作品</h3>
+                <div style="font-weight: bold; font-family: 'Noto Serif JP', serif; font-size: 1.1rem; line-height: 1.4;">
+                    {{ series.title }}
+                </div>
+                <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">
+                    の続きを執筆中
+                </div>
+            </div>
+
+            <div style="background: #fff; padding: 15px; border-radius: 4px; border: 1px solid #eee; margin-bottom: 20px;">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">直近のエピソード</div>
+                <ul style="padding-left: 20px; margin: 0; font-size: 0.9rem; color: #555;">
+                    <li style="color: #999;">...</li>
+                    {% for child in recent_chapters %}
+                        <li>{{ child.title }}</li>
+                    {% endfor %}
+                    <li style="color: var(--accent); font-weight: bold;">(今回) 新しいエピソード</li>
+                </ul>
+            </div>
+
+            <div style="margin-top: auto;">
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 15px; font-size: 1.1rem;">
+                    投稿する
+                </button>
+                <a href="{{ url_for('novels.novel_detail', novel_id=series.id) }}" style="display: block; text-align: center; margin-top: 15px; color: #999; text-decoration: none;">
+                    キャンセル
+                </a>
+            </div>
+        </div>
+
+        <div class="writer-main">
+            <div class="writer-editor-container">
+                <input type="text" name="title" class="writer-title-input" placeholder="サブタイトルを入力（例：第○話 予感）" required autofocus>
+                <textarea name="content" class="writer-body-textarea" placeholder="ここに本文を書いてください..." required></textarea>
+            </div>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

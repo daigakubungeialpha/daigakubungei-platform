@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+
+{% block title %}作品一覧{% endblock %}
+
+{% block extra_css %}
+<style>
+    .list-container {
+        max-width: var(--max-width-wide);
+        margin: 0 auto;
+    }
+    
+    .list-header {
+        margin-bottom: var(--spacing-xl);
+    }
+    
+    .list-title {
+        font-family: var(--font-serif);
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--color-primary);
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .list-description {
+        color: var(--color-text-light);
+        font-size: 1rem;
+    }
+    
+    /* フィルター & 検索 */
+    .filters {
+        background: white;
+        padding: var(--spacing-lg);
+        border-radius: 12px;
+        margin-bottom: var(--spacing-lg);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    
+    .filters-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr auto;
+        gap: var(--spacing-md);
+        align-items: end;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .filter-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--color-text);
+    }
+    
+    .filter-select,
+    .filter-input {
+        padding: 0.6rem 1rem;
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        font-size: 0.9rem;
+        background: white;
+        transition: all 0.3s;
+    }
+    
+    .filter-select:focus,
+    .filter-input:focus {
+        outline: none;
+        border-color: var(--color-primary);
+    }
+    
+    .btn-filter {
+        padding: 0.6rem 1.5rem;
+        background: var(--color-primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-filter:hover {
+        background: var(--color-secondary);
+    }
+    
+    /* 結果表示 */
+    .results-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-md);
+        padding: var(--spacing-sm) 0;
+        border-bottom: 1px solid var(--color-border);
+    }
+    
+    .results-count {
+        color: var(--color-text-light);
+        font-size: 0.9rem;
+    }
+    
+    .sort-options {
+        display: flex;
+        gap: var(--spacing-sm);
+    }
+    
+    .sort-btn {
+        padding: 0.4rem 0.8rem;
+        background: white;
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        color: var(--color-text);
+    }
+    
+    .sort-btn:hover {
+        background: var(--color-bg-light);
+    }
+    
+    .sort-btn.active {
+        background: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+    }
+    
+    /* 作品リスト */
+    .novel-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+    
+    .novel-list-item {
+        background: white;
+        padding: var(--spacing-lg);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        transition: all 0.3s;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        gap: var(--spacing-lg);
+    }
+    
+    .novel-list-item:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        transform: translateY(-2px);
+    }
+    
+    .novel-list-content {
+        flex: 1;
+    }
+    
+    .novel-list-header {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .novel-list-category {
+        padding: 0.2rem 0.6rem;
+        background: var(--color-bg-light);
+        color: var(--color-text-light);
+        font-size: 0.75rem;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    
+    .novel-list-title {
+        font-family: var(--font-serif);
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-primary);
+        margin-bottom: var(--spacing-sm);
+        line-height: 1.4;
+    }
+    
+    .novel-list-excerpt {
+        color: var(--color-text-light);
+        line-height: 1.8;
+        margin-bottom: var(--spacing-md);
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .novel-list-meta {
+        display: flex;
+        gap: var(--spacing-md);
+        align-items: center;
+        font-size: 0.85rem;
+        color: var(--color-text-light);
+    }
+    
+    .novel-list-author {
+        font-weight: 500;
+        color: var(--color-text);
+    }
+    
+    .novel-list-stats {
+        display: flex;
+        gap: var(--spacing-sm);
+    }
+    
+    .novel-list-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    
+    /* 空の状態 */
+    .empty-results {
+        text-align: center;
+        padding: var(--spacing-xl);
+        background: var(--color-bg-light);
+        border-radius: 12px;
+    }
+    
+    .empty-icon {
+        font-size: 4rem;
+        opacity: 0.3;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .empty-text {
+        color: var(--color-text-light);
+        font-size: 1.1rem;
+    }
+    
+    /* ページネーション */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: var(--spacing-sm);
+        margin-top: var(--spacing-xl);
+    }
+    
+    .pagination-btn {
+        padding: 0.5rem 1rem;
+        background: white;
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        color: var(--color-text);
+    }
+    
+    .pagination-btn:hover:not(.disabled) {
+        background: var(--color-bg-light);
+    }
+    
+    .pagination-btn.active {
+        background: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+    }
+    
+    .pagination-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    /* レスポンシブ */
+    @media (max-width: 768px) {
+        .filters-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .novel-list-item {
+            flex-direction: column;
+        }
+        
+        .list-title {
+            font-size: 1.8rem;
+        }
+        
+        .novel-list-title {
+            font-size: 1.2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="list-container">
+    <div class="list-header">
+        <h1 class="list-title">作品一覧</h1>
+        <p class="list-description">投稿された作品を閲覧できます</p>
+    </div>
+    
+    <!-- フィルター & 検索 -->
+    <div class="filters">
+        <form method="GET" action="{{ url_for('novels.list_novels') }}">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label class="filter-label">カテゴリー</label>
+                    <select class="filter-select" name="category">
+                        <option value="">すべて</option>
+                        <option value="novel" {% if request.args.get('category') == 'novel' %}selected{% endif %}>創作（小説）</option>
+                        <option value="essay" {% if request.args.get('category') == 'essay' %}selected{% endif %}>評論・エッセイ</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">並び替え</label>
+                    <select class="filter-select" name="sort">
+                        <option value="newest" {% if request.args.get('sort') == 'newest' or not request.args.get('sort') %}selected{% endif %}>新しい順</option>
+                        <option value="popular" {% if request.args.get('sort') == 'popular' %}selected{% endif %}>人気順</option>
+                        <option value="likes" {% if request.args.get('sort') == 'likes' %}selected{% endif %}>いいね順</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">検索</label>
+                    <input 
+                        type="text" 
+                        class="filter-input" 
+                        name="search" 
+                        placeholder="タイトル・著者..."
+                        value="{{ request.args.get('search', '') }}"
+                    >
+                </div>
+                
+                <button type="submit" class="btn-filter">
+                    <i class="bi bi-search"></i>
+                    検索
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- 結果表示 -->
+    <div class="results-info">
+        <div class="results-count">
+            {{ novels|length }} 件の作品
+        </div>
+    </div>
+    
+    <!-- 作品リスト -->
+    {% if novels %}
+    <div class="novel-list">
+        {% for novel in novels %}
+        <a href="{{ url_for('novels.view', id=novel.id) }}" class="novel-list-item">
+            <div class="novel-list-content">
+                <div class="novel-list-header">
+                    <span class="novel-list-category">
+                        {% if novel.category == 'essay' %}
+                            評論
+                        {% else %}
+                            創作
+                        {% endif %}
+                    </span>
+                    <span class="novel-list-category">
+                        {% if novel.font_style == 'mincho' %}
+                            明朝体
+                        {% elif novel.font_style == 'gothic' %}
+                            ゴシック体
+                        {% else %}
+                            等幅
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <h2 class="novel-list-title">{{ novel.title }}</h2>
+                
+                <p class="novel-list-excerpt">{{ novel.content[:200] }}...</p>
+                
+                <div class="novel-list-meta">
+                    <span class="novel-list-author">
+                        <i class="bi bi-person-circle"></i>
+                        {{ novel.author.username }}
+                    </span>
+                    <span>{{ novel.created_at.strftime('%Y年%m月%d日') }}</span>
+                    <div class="novel-list-stats">
+                        <span class="novel-list-stat">
+                            <i class="bi bi-eye"></i>
+                            {{ novel.view_count|default(0) }}
+                        </span>
+                        <span class="novel-list-stat">
+                            <i class="bi bi-heart"></i>
+                            {{ novel.likes_count|default(0) }}
+                        </span>
+                        <span class="novel-list-stat">
+                            <i class="bi bi-chat"></i>
+                            {{ novel.comments_count }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    
+    <!-- ページネーション（オプション） -->
+    <!-- 実装する場合はこちらに追加 -->
+    
+    {% else %}
+    <div class="empty-results">
+        <div class="empty-icon">📚</div>
+        <p class="empty-text">
+            {% if request.args.get('search') %}
+                「{{ request.args.get('search') }}」に一致する作品が見つかりませんでした
+            {% else %}
+                作品がまだありません
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

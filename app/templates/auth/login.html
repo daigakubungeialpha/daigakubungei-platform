@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div style="margin-bottom: 20px;">
+        <i class="fa-solid fa-feather-pointed" style="font-size: 2rem; color: var(--ink);"></i>
+    </div>
+    <h2 class="auth-title">入室</h2>
+    <p class="auth-subtitle">文芸プラットフォームへの通行証</p>
+    
+    <form method="POST" style="margin-top: 30px;">
+        <div style="margin-bottom: 30px; text-align: left;">
+            <label style="font-size: 0.8rem; font-weight:bold; color: var(--ink); display: block; margin-bottom: 5px;">お名前（ID）</label>
+            <input type="text" name="username" class="modern-input" placeholder="夏目漱石" required autofocus>
+        </div>
+        
+        <div style="margin-bottom: 40px; text-align: left;">
+            <label style="font-size: 0.8rem; font-weight:bold; color: var(--ink); display: block; margin-bottom: 5px;">合言葉（PASS）</label>
+            <input type="password" name="password" class="modern-input" placeholder="••••••••" required>
+        </div>
+        
+        <button type="submit" class="btn-primary">
+            入室する
+        </button>
+    </form>
+    
+    <div>
+        <a href="{{ url_for('auth.register') }}" class="auth-link">
+            まだ会員証をお持ちでない方はこちら
+        </a>
+    </div>
+</div>
+{% endblock %}

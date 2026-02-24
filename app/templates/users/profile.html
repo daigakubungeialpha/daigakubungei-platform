@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background-color: var(--paper-white);
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .profile-name {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-stats {
+        display: flex;
+        gap: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .novels-section h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-header">
+    <h1 class="profile-name">{{ user.username }}</h1>
+    <div class="profile-stats">
+        <span>投稿作品: {{ novels|length }}作</span>
+        <span>登録日: {{ user.created_at.strftime('%Y年%m月%d日') }}</span>
+    </div>
+</div>
+
+<div class="novels-section">
+    <h2>投稿作品</h2>
+    
+    <div class="novel-grid">
+        {% for novel in novels %}
+        <div class="novel-card">
+            <h3><a href="{{ url_for('novels.view', id=novel.id) }}">{{ novel.title }}</a></h3>
+            <div class="novel-meta">
+                {{ novel.created_at.strftime('%Y年%m月%d日') }}
+            </div>
+            <div class="novel-excerpt">
+                {{ novel.content[:200] }}...
+            </div>
+            <div class="novel-stats">
+                <span>👁 {{ novel.view_count }}</span>
+                <span>❤️ {{ novel.likes_count }}</span>
+            </div>
+        </div>
+        {% else %}
+        <p style="text-align: center; color: var(--text-secondary); padding: 3rem;">
+            まだ作品が投稿されていません
+        </p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

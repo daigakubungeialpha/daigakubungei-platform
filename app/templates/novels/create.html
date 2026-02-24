@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="width: 100vw; margin-left: calc(50% - 50vw);">
+    
+    <form method="POST" action="{{ url_for('novels.create') }}" class="writer-layout">
+        
+        <div class="writer-sidebar">
+            <h3 style="font-size: 1rem; color: #666; margin-bottom: 20px;">作品設定</h3>
+            
+            <div class="form-group">
+                <label class="input-label">投稿形式</label>
+                <div class="radio-group" style="flex-direction: column; gap: 10px;">
+                    <label class="radio-card">
+                        <input type="radio" name="novel_type" value="short" checked onchange="toggleEditorMode()">
+                        <span class="radio-text" style="display:block; text-align:center;"><i class="fa-solid fa-feather"></i> 短編</span>
+                    </label>
+                    <label class="radio-card">
+                        <input type="radio" name="novel_type" value="series" onchange="toggleEditorMode()">
+                        <span class="radio-text" style="display:block; text-align:center;"><i class="fa-solid fa-layer-group"></i> 連載（表紙作成）</span>
+                    </label>
+                </div>
+                <p id="mode-desc" style="font-size: 0.8rem; color: #888; margin-top: 10px;">
+                    一話完結の物語を投稿します。
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label class="input-label">ジャンル</label>
+                <select name="genre" class="modern-select">
+                    <option value="純文学">純文学</option>
+                    <option value="現代ドラマ">現代ドラマ</option>
+                    <option value="恋愛">恋愛</option>
+                    <option value="ミステリー">ミステリー</option>
+                    <option value="SF・ファンタジー">SF・ファンタジー</option>
+                    <option value="エッセイ">エッセイ</option>
+                    <option value="詩・短歌">詩・短歌</option>
+                    <option value="その他">その他</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="input-label">タグ</label>
+                <input type="text" name="tags" class="modern-input" placeholder="#大学生 #日常">
+            </div>
+
+            <div style="margin-top: 40px;">
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 15px; font-size: 1.1rem;">
+                    公開する
+                </button>
+                <a href="{{ url_for('main.index') }}" style="display: block; text-align: center; margin-top: 15px; color: #999; text-decoration: none;">キャンセル</a>
+            </div>
+        </div>
+
+        <div class="writer-main">
+            <div class="writer-editor-container">
+                <input type="text" name="title" class="writer-title-input" placeholder="タイトルを入力..." required autofocus>
+                
+                <div class="form-group">
+                    <label class="input-label" id="summary-label">あらすじ（キャプション）</label>
+                    <textarea name="summary" class="modern-textarea short" rows="4" placeholder="作品の概要や、読者へのメッセージ..." style="width: 100%;"></textarea>
+                </div>
+
+                <div id="body-section">
+                    <hr class="editor-divider">
+                    <label class="input-label" style="margin-bottom: 15px; display: block;">本文</label>
+                    <textarea name="content" class="writer-body-textarea" placeholder="ここに物語を書いてください..."></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleEditorMode() {
+    const type = document.querySelector('input[name="novel_type"]:checked').value;
+    const bodySection = document.getElementById('body-section');
+    const desc = document.getElementById('mode-desc');
+    const summaryLabel = document.getElementById('summary-label');
+    const bodyTextarea = document.querySelector('textarea[name="content"]');
+
+    if (type === 'series') {
+        // 連載モード：本文欄を隠す
+        bodySection.style.display = 'none';
+        desc.innerText = "連載の「表紙」を作成します。第1話は作成後に追加します。";
+        summaryLabel.innerText = "連載のあらすじ（必須）";
+        bodyTextarea.required = false; // 必須解除
+    } else {
+        // 短編モード：本文欄を表示
+        bodySection.style.display = 'block';
+        desc.innerText = "一話完結の物語を投稿します。";
+        summaryLabel.innerText = "あらすじ（任意）";
+        bodyTextarea.required = true; // 必須
+    }
+}
+</script>
+{% endblock %}

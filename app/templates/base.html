@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文芸プラットフォーム</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;700;900&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="{{ url_for('main.index') }}" class="nav-logo">
+                <i class="fa-solid fa-book-open" style="margin-right: 10px; font-size: 1.2rem;"></i>文芸部
+            </a>
+
+            <form action="{{ url_for('main.index') }}" method="GET" style="flex-grow: 1; max-width: 300px; margin: 0 40px; position: relative;">
+                <input type="text" name="q" class="modern-input" placeholder="書名・著者・タグ..." 
+                       value="{{ request.args.get('q', '') }}"
+                       style="border-bottom: 1px solid var(--ink-light); padding: 5px 0; font-size: 0.9rem; width: 100%;">
+                <button type="submit" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--ink);">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </form>
+
+            <div class="nav-menu">
+                {% if current_user.is_authenticated %}
+                    {% if request.endpoint != 'novels.create' and request.endpoint != 'novels.add_chapter' %}
+                    <a href="{{ url_for('novels.create') }}" class="btn-accent" style="margin-right: 10px;">
+                        <i class="fa-solid fa-pen-nib"></i> 執筆
+                    </a>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('users.mypage') }}" class="nav-user-link">
+                        <i class="fa-solid fa-user-circle"></i> {{ current_user.username }}
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" style="font-size: 0.8rem; color: #888; text-decoration: none;">ログアウト</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="nav-btn btn-login">入室（ログイン）</a>
+                    <a href="{{ url_for('auth.register') }}" class="nav-btn btn-register">会員登録</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash-messages">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
