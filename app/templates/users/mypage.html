@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if current_user.is_admin %}
+    <div style="text-align: center; margin: 20px 0 40px 0;">
+        <a href="{{ url_for('users.admin_dashboard') }}" style="display: inline-block; background: var(--ink); color: white; padding: 12px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.15)';">
+            <i class="fa-solid fa-user-shield"></i> 管理者ダッシュボードを開く
+        </a>
+    </div>
+    {% endif %}
+    ```
 <div class="mypage-header-card">
     <div class="mypage-avatar-circle">
         {{ current_user.username[0] }}
@@ -90,10 +98,10 @@
 function showTab(tabName) {
     document.querySelectorAll('.mypage-tab-content').forEach(el => el.style.display = 'none');
     document.getElementById('tab-' + tabName).style.display = 'block';
-    
+
     const btnMy = document.getElementById('btn-my-works');
     const btnLiked = document.getElementById('btn-liked-works');
-    
+
     if (tabName === 'my-works') {
         btnMy.style.borderBottom = '2px solid var(--ink)'; btnMy.style.color = 'var(--ink)';
         btnLiked.style.borderBottom = '2px solid transparent'; btnLiked.style.color = 'var(--ink-light)';

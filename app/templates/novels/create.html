@@ -2,12 +2,15 @@
 
 {% block content %}
 <div style="width: 100vw; margin-left: calc(50% - 50vw);">
-    
+
+<div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
     <form method="POST" action="{{ url_for('novels.create') }}" class="writer-layout">
-        
+
         <div class="writer-sidebar">
+            <div class="sidebar-close-btn" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></div>
             <h3 style="font-size: 1rem; color: #666; margin-bottom: 20px;">作品設定</h3>
-            
+
             <div class="form-group">
                 <label class="input-label">投稿形式</label>
                 <div class="radio-group" style="flex-direction: column; gap: 10px;">
@@ -26,17 +29,27 @@
             </div>
 
             <div class="form-group">
-                <label class="input-label">ジャンル</label>
-                <select name="genre" class="modern-select">
-                    <option value="純文学">純文学</option>
-                    <option value="現代ドラマ">現代ドラマ</option>
-                    <option value="恋愛">恋愛</option>
-                    <option value="ミステリー">ミステリー</option>
-                    <option value="SF・ファンタジー">SF・ファンタジー</option>
-                    <option value="エッセイ">エッセイ</option>
-                    <option value="詩・短歌">詩・短歌</option>
-                    <option value="その他">その他</option>
-                </select>
+               <label style="font-size: 0.85rem; color: #666; display: flex; align-items: center; gap: 5px; margin-bottom: 10px;">
+    ジャンル
+    <i class="fa-regular fa-circle-question" style="color: var(--accent); cursor: pointer; font-size: 1.1rem; transition: 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1" onclick="openGenreModal()" title="ジャンルの説明を見る"></i>
+</label>
+                  <select name="genre" class="modern-select">
+    <option value="純文学">純文学</option>
+    <option value="現代純文学">現代純文学</option>
+    <option value="現代・エンタメ">現代・エンタメ</option>
+    <option value="恋愛・ロマンス">恋愛・ロマンス</option>
+    <option value="青春・児童">青春・児童</option>
+    <option value="ミステリ">ミステリ</option>
+    <option value="SF">SF</option>
+    <option value="歴史">歴史</option>
+    <option value="ローファンタジー">ローファンタジー</option>
+    <option value="ハイファンタジー">ハイファンタジー</option>
+    <option value="ホラー・怪奇">ホラー・怪奇</option>
+    <option value="ノンフィクション">ノンフィクション</option>
+    <option value="エッセイ・随筆">エッセイ・随筆</option>
+    <option value="韻文">韻文</option>
+    <option value="論文・評論">論文・評論</option>
+ </select>
             </div>
 
             <div class="form-group">
@@ -54,16 +67,24 @@
 
         <div class="writer-main">
             <div class="writer-editor-container">
+                <div class="mobile-settings-toggle" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars"></i> 作品設定・公開メニュー
+                </div>
                 <input type="text" name="title" class="writer-title-input" placeholder="タイトルを入力..." required autofocus>
-                
+
                 <div class="form-group">
-                    <label class="input-label" id="summary-label">あらすじ（キャプション）</label>
-                    <textarea name="summary" class="modern-textarea short" rows="4" placeholder="作品の概要や、読者へのメッセージ..." style="width: 100%;"></textarea>
+                    <label class="input-label" id="summary-label">キャプション（あらすじ・説明）</label>
+<textarea name="summary" class="modern-textarea short" rows="4" placeholder="作品の概要、「〇〇に着想を得ました」などの説明、読者へのメッセージ等をご自由にお書きください。" style="width: 100%;"></textarea>
                 </div>
 
                 <div id="body-section">
                     <hr class="editor-divider">
-                    <label class="input-label" style="margin-bottom: 15px; display: block;">本文</label>
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+    <label class="input-label" style="margin-bottom: 0;">本文</label>
+    <span onclick="openSyntaxModal()" style="font-size: 0.85rem; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">
+        <i class="fa-regular fa-circle-question"></i> 記法のヘルプ
+    </span>
+</div>
                     <textarea name="content" class="writer-body-textarea" placeholder="ここに物語を書いてください..."></textarea>
                 </div>
             </div>
@@ -94,4 +115,118 @@ function toggleEditorMode() {
     }
 }
 </script>
+<div id="genre-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s;">
+    <div style="background: #fff; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.15); transform: translateY(20px); transition: transform 0.3s;">
+        <span onclick="closeGenreModal()" style="position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #666;">&times;</span>
+        <h3 style="margin-bottom: 20px; border-bottom: 2px solid var(--accent); padding-bottom: 10px; color: var(--ink); font-family: 'Shippori Mincho', serif;">ジャンルについて</h3>
+    <ul style="list-style: none; padding: 0; color: #444; font-size: 0.85rem; line-height: 1.6; max-height: 60vh; overflow-y: auto;">
+    <li style="margin-bottom: 12px;"><strong>純文学</strong><br><span style="color: #666;">芸術性に重きを置き、モダニズム文学的な文体</span></li>
+    <li style="margin-bottom: 12px;"><strong>現代純文学</strong><br><span style="color: #666;">芸術性に重きを置き、現代日本語の文体</span></li>
+    <li style="margin-bottom: 12px;"><strong>現代・エンタメ</strong><br><span style="color: #666;">現代を舞台にした、他ジャンルに当てはまらない作品</span></li>
+    <li style="margin-bottom: 12px;"><strong>恋愛・ロマンス</strong><br><span style="color: #666;">恋愛に重きを置く</span></li>
+    <li style="margin-bottom: 12px;"><strong>青春・児童</strong><br><span style="color: #666;">学生生徒児童を対象とする</span></li>
+    <li style="margin-bottom: 12px;"><strong>ミステリ</strong><br><span style="color: #666;">ミステリ的要素を持つ</span></li>
+    <li style="margin-bottom: 12px;"><strong>SF</strong><br><span style="color: #666;">空想科学技術的な志向を持つ</span></li>
+    <li style="margin-bottom: 12px;"><strong>歴史</strong><br><span style="color: #666;">時代考証、参考文献を必要とする</span></li>
+    <li style="margin-bottom: 12px;"><strong>ローファンタジー</strong><br><span style="color: #666;">現存する文明のファンタジー</span></li>
+    <li style="margin-bottom: 12px;"><strong>ハイファンタジー</strong><br><span style="color: #666;">想像した文明のファンタジー、また異世界を舞台とする</span></li>
+    <li style="margin-bottom: 12px;"><strong>ホラー・怪奇</strong><br><span style="color: #666;">恐怖や怪異をテーマとする作品</span></li>
+    <li style="margin-bottom: 12px;"><strong>ノンフィクション</strong><br><span style="color: #666;">事実に基づいた記録や記述</span></li>
+    <li style="margin-bottom: 12px;"><strong>エッセイ・随筆</strong><br><span style="color: #666;">自由な形式で綴られる思索や体験</span></li>
+    <li style="margin-bottom: 12px;"><strong>韻文</strong><br><span style="color: #666;">詩、短歌、俳句、都々逸、連歌連句など</span></li>
+    <li style="margin-bottom: 12px;"><strong>論文・評論</strong><br><span style="color: #666;">論理的な分析や批評</span></li>
+</ul>
+        <div style="text-align: center; margin-top: 25px;">
+            <button type="button" onclick="closeGenreModal()" style="background: var(--ink); color: white; border: none; padding: 8px 30px; border-radius: 30px; cursor: pointer; transition: 0.2s;">閉じる</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const genreModal = document.getElementById('genre-modal');
+    const modalContent = genreModal.querySelector('div');
+
+    function openGenreModal() {
+        genreModal.style.display = 'flex';
+        // 少し遅らせてアニメーションさせる
+        setTimeout(() => {
+            genreModal.style.opacity = '1';
+            modalContent.style.transform = 'translateY(0)';
+        }, 10);
+    }
+
+    function closeGenreModal() {
+        genreModal.style.opacity = '0';
+        modalContent.style.transform = 'translateY(20px)';
+        // アニメーションが終わったら非表示にする
+        setTimeout(() => {
+            genreModal.style.display = 'none';
+        }, 300);
+    }
+
+    // モーダルの外側（黒い背景部分）をクリックしても閉じるようにする
+    window.onclick = function(event) {
+        if (event.target == genreModal) {
+            closeGenreModal();
+        }
+    }
+</script>
+<div id="syntax-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s;">
+    <div style="background: #fff; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.15); transform: translateY(20px); transition: transform 0.3s;">
+        <span onclick="closeSyntaxModal()" style="position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #666;">&times;</span>
+        <h3 style="margin-bottom: 20px; border-bottom: 2px solid var(--accent); padding-bottom: 10px; color: var(--ink); font-family: 'Shippori Mincho', serif;">本文の記法について</h3>
+        <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">特定の記号を使うことで、ルビ（ふりがな）や傍線（強調）を表現できます。</p>
+
+        <div style="background: #f9f9f9; border-left: 3px solid var(--accent); padding: 15px; border-radius: 0 6px 6px 0; margin-bottom: 20px;">
+            <h4 style="font-size: 0.95rem; color: var(--ink); margin-bottom: 8px;"><i class="fa-solid fa-language" style="color: #888;"></i> ルビ（ふりがな）</h4>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 5px;">漢字の前に <code>|</code> を、ふりがなを <code>《 》</code> で囲みます。</p>
+            <code style="display: block; background: #fff; border: 1px solid #ddd; padding: 8px; border-radius: 4px; font-size: 0.9rem; color: #333; margin-top: 8px;">|漢《かん》|字《じ》</code>
+        </div>
+
+        <div style="background: #f9f9f9; border-left: 3px solid var(--accent); padding: 15px; border-radius: 0 6px 6px 0; margin-bottom: 20px;">
+            <h4 style="font-size: 0.95rem; color: var(--ink); margin-bottom: 8px;"><i class="fa-solid fa-pen-nib" style="color: #888;"></i> 傍線（強調）</h4>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 5px;">強調したい文字を <code>《《 》》</code> で囲みます。</p>
+            <code style="display: block; background: #fff; border: 1px solid #ddd; padding: 8px; border-radius: 4px; font-size: 0.9rem; color: #333; margin-top: 8px;">ここは《《とても重要》》です。</code>
+        </div>
+
+        <div style="text-align: center; margin-top: 25px;">
+            <button type="button" onclick="closeSyntaxModal()" style="background: var(--ink); color: white; border: none; padding: 8px 30px; border-radius: 30px; cursor: pointer; transition: 0.2s;">閉じる</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const syntaxModal = document.getElementById('syntax-modal');
+    const syntaxModalContent = syntaxModal.querySelector('div');
+
+    function openSyntaxModal() {
+        syntaxModal.style.display = 'flex';
+        setTimeout(() => {
+            syntaxModal.style.opacity = '1';
+            syntaxModalContent.style.transform = 'translateY(0)';
+        }, 10);
+    }
+
+    function closeSyntaxModal() {
+        syntaxModal.style.opacity = '0';
+        syntaxModalContent.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            syntaxModal.style.display = 'none';
+        }, 300);
+    }
+
+    // モーダルの外側（黒い背景部分）をクリックした時に閉じる処理
+    window.addEventListener('click', function(event) {
+        if (event.target == syntaxModal) {
+            closeSyntaxModal();
+        }
+    });
+</script>
+<script>
+    function toggleSidebar() {
+        document.querySelector('.writer-sidebar').classList.toggle('active');
+        document.getElementById('sidebar-overlay').classList.toggle('active');
+    }
+</script>
+
 {% endblock %}

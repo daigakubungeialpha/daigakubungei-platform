@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto; padding: 40px 20px;">
+
+    <h1 style="font-family: 'Shippori Mincho', serif; text-align: center; border-bottom: 2px solid var(--accent); padding-bottom: 15px; margin-bottom: 40px;">
+        <i class="fa-solid fa-user-shield"></i> 管理者ダッシュボード
+    </h1>
+
+    <section style="margin-bottom: 50px;">
+        <h2 style="font-size: 1.5rem; margin-bottom: 20px; color: var(--ink); border-left: 4px solid var(--accent); padding-left: 10px;">
+            <i class="fa-solid fa-users"></i> アカウント管理
+        </h2>
+        <div style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #eee; background: #f9f9f9;">
+                        <th style="padding: 12px;">ID</th>
+                        <th style="padding: 12px;">ユーザー名</th>
+                        <th style="padding: 12px;">状態</th>
+                        <th style="padding: 12px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 12px; color: #888;">{{ u.id }}</td>
+                        <td style="padding: 12px; font-weight: bold; color: var(--ink);">{{ u.username }}</td>
+                        <td style="padding: 12px;">
+                            {% if u.is_banned %}
+                                <span style="color: #e74c3c; font-weight: bold; background: #ffebee; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;"><i class="fa-solid fa-ban"></i> BAN（凍結中）</span>
+                            {% elif u.is_admin %}
+                                <span style="color: #3498db; font-weight: bold; background: #e8f4f8; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;"><i class="fa-solid fa-crown"></i> 管理者</span>
+                            {% else %}
+                                <span style="color: #2ecc71; font-size: 0.9rem;">通常</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 12px;">
+                            {% if not u.is_admin %}
+                            <form action="{{ url_for('users.toggle_ban', user_id=u.id) }}" method="POST" style="display:inline;">
+                                {% if u.is_banned %}
+                                    <button type="submit" style="background: #2ecc71; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: 0.2s;">BAN解除</button>
+                                {% else %}
+                                    <button type="submit" style="background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: 0.2s;" onclick="return confirm('本当にこのユーザーをBAN（投稿禁止）にしますか？');">BANする</button>
+                                {% endif %}
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section>
+        <h2 style="font-size: 1.5rem; margin-bottom: 20px; color: var(--ink); border-left: 4px solid var(--accent); padding-left: 10px;">
+            <i class="fa-solid fa-book"></i> 作品管理（PV操作）
+        </h2>
+        <div style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #eee; background: #f9f9f9;">
+                        <th style="padding: 12px;">ID</th>
+                        <th style="padding: 12px;">作品名</th>
+                        <th style="padding: 12px;">作者</th>
+                        <th style="padding: 12px;">現在のPV</th>
+                        <th style="padding: 12px;">PV操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for n in novels %}
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 12px; color: #888;">{{ n.id }}</td>
+                        <td style="padding: 12px;">
+                            <a href="{{ url_for('novels.novel_detail', novel_id=n.id) }}" target="_blank" style="color: var(--ink); font-weight: bold; text-decoration: none;">{{ n.title }}</a>
+                        </td>
+                        <td style="padding: 12px; color: #555;">{{ n.author.username }}</td>
+                        <td style="padding: 12px; font-weight: bold; color: var(--accent); font-size: 1.1rem;">{{ n.pv }}</td>
+                        <td style="padding: 12px;">
+                            <form action="{{ url_for('novels.update_pv', novel_id=n.id) }}" method="POST" style="display: flex; gap: 8px; align-items: center;">
+                                <input type="number" name="new_pv" value="{{ n.pv }}" style="width: 100px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: right;" min="0">
+                                <button type="submit" style="background: var(--ink); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: 0.2s;">変更</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

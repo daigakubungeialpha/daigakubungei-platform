@@ -1,8 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="editor-wrapper" style="padding: 60px 80px; background: #fff; box-shadow: 0 4px 30px rgba(0,0,0,0.05); position: relative;">
-    
+<style>
+    /* 縦書きモードの魔法のデザイン */
+    .vertical-mode {
+        writing-mode: vertical-rl; /* 文字を縦書き・右から左へ流す */
+        text-orientation: mixed;
+        height: 70vh; /* 縦の高さを画面の70%に固定（横スクロールさせるため） */
+        width: 100%;
+        overflow-x: auto; /* はみ出した分を横スクロールさせる */
+        overflow-y: hidden;
+        line-height: 2.2; /* 縦書きは行間が広いほうが美しい */
+        padding: 20px 30px;
+        box-sizing: border-box;
+        font-family: 'Shippori Mincho', serif; /* 明朝体で文学っぽく */
+        background: #faf8f5; /* 少しクリーム色がかった紙のような背景 */
+        border-radius: 8px;
+        border: 1px solid #eee;
+    }
+
+    /* 横書きモードのデフォルトデザイン */
+    .horizontal-mode {
+        writing-mode: horizontal-tb;
+        line-height: 1.8;
+        padding: 20px;
+        background: transparent;
+        border: none;
+    }
+    /* PC画面でコメント欄が開いた時、本文全体を左にスライドさせる */
+    @media (min-width: 768px) {
+        body.drawer-open #main-wrapper {
+            transform: translateX(-180px); /* コメント欄の幅に合わせて左にずらす */
+        }
+    }
+    /* ▼▼ ルビと傍線のデザイン ▼▼ */
+    ruby {
+        ruby-align: center; /* ふりがなを中央揃えに */
+    }
+    rt {
+        font-size: 0.6em; /* ふりがなのサイズ */
+        color: #555;
+    }
+    .bousen {
+        text-decoration: underline;
+        /* 縦書きの時は右側、横書きの時は下側に線を引く */
+        text-underline-position: under right;
+        text-decoration-color: var(--ink);
+        text-decoration-thickness: 1.5px;
+        text-decoration-skip-ink: none; /* 漢字のハネなどで線が途切れないようにする */
+    }
+</style>
+<div id="main-wrapper" class="editor-wrapper" style="padding: 60px 80px; background: #fff; box-shadow: 0 4px 30px rgba(0,0,0,0.05); position: relative; transition: transform 0.3s ease;">
+
     {% if current_user.is_authenticated and current_user.id == novel.author_id %}
     <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
         <a href="{{ url_for('novels.edit', novel_id=novel.id) }}" class="btn-primary" style="background: #fff; color: #333; border: 1px solid #ddd; font-size: 0.8rem; padding: 6px 12px; box-shadow:none;">編集</a>
@@ -23,7 +72,17 @@
         </div>
     </div>
 
-    <div id="novel-content" class="text-size-m" style="white-space: pre-wrap; margin-bottom: 100px;">{{ novel.content }}</div>
+    <div style="text-align: right; margin-bottom: 20px;">
+        <button id="mode-toggle-btn" onclick="toggleWritingMode()" style="background: white; border: 1px solid var(--accent); color: var(--accent); padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: 0.3s;">
+            <i class="fa-solid fa-book-open"></i> 縦書きで読む
+        </button>
+    </div>
+{% if novel.summary %}
+    <div style="background: rgba(0,0,0,0.02); padding: 20px; border-left: 3px solid var(--accent); margin: 30px 0; border-radius: 0 4px 4px 0; font-size: 0.9rem; color: #555; line-height: 1.7;">
+        {{ novel.summary | replace('\n', '<br>') | safe }}
+    </div>
+    {% endif %}
+    <div id="novel-content" class="text-size-m horizontal-mode" style="white-space: pre-wrap; margin-bottom: 80px; transition: 0.3s; text-align: justify; line-height: 2.0; letter-spacing: 0.03em;">{{ novel.content }}</div>
 
     <div style="padding-top: 40px; border-top: 1px solid #eee; text-align: center;">
         {% if current_user.is_authenticated %}
@@ -61,16 +120,6 @@
             </div>
             {% endif %}
             <div class="comment-content">{{ comment.content }}</div>
-            <div style="text-align: right; margin-top: 5px;">
-                <span style="font-size: 0.75rem; color: #aaa; cursor: pointer;" onclick="setReply('{{ comment.id }}', '{{ comment.author.username }}')">返信</span>
-            </div>
-            <div class="reply-list" id="reply-list-{{ comment.id }}">
-                {% for reply in comment.replies %}
-                <div style="margin-top: 8px; border-top: 1px dashed #eee; padding-top: 8px; margin-left: 10px; font-size: 0.85rem; color: #666;">
-                    {{ reply.author.username }}: {{ reply.content }}
-                </div>
-                {% endfor %}
-            </div>
         </div>
         {% endfor %}
     </div>
@@ -79,12 +128,17 @@
             引用中: <span id="quote-preview-text"></span>
             <span onclick="clearQuote()" style="float:right; cursor:pointer;">&times;</span>
         </div>
-        <form id="comment-form" onsubmit="submitComment(event)" class="comment-form-group" style="display:flex; gap:10px;">
+       <form id="comment-form" onsubmit="submitComment(event)" style="display:flex; gap:10px; align-items: flex-end;">
             <input type="hidden" name="quote_text" id="input-quote">
             <input type="hidden" name="parent_id" id="input-parent">
-            <input type="text" name="content" id="input-content" class="comment-input" placeholder="感想を入力..." required>
-            <button type="submit" style="background:var(--ink); color:white; border:none; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center;">
-                <i class="fa-solid fa-paper-plane" style="font-size: 0.9rem;"></i>
+
+            <textarea name="content" id="input-content" class="modern-input" placeholder="感想を入力..."
+                style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 0.9rem; min-height: 40px; max-height: 500px; resize: none; font-family: inherit; line-height: 1.5; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); overflow-y: auto; box-sizing: border-box;"
+                rows="1" required
+                oninput="this.style.height = '40px'; this.style.height = this.scrollHeight + 'px';"></textarea>
+
+            <button type="submit" style="background:var(--ink); color:white; border:none; width:40px; height:40px; border-radius:50%; cursor:pointer; flex-shrink: 0; margin-bottom: 2px;">
+                <i class="fa-solid fa-paper-plane"></i>
             </button>
         </form>
     </div>
@@ -105,11 +159,11 @@
     changeFontSize(localStorage.getItem('novel-font-size') || 'm');
 
     // --- ドラッグ検知 & 解除ロジックの改善 ---
-    
+
     // 1. テキスト選択が変わった時（選択解除も含めて）監視
     document.addEventListener('selectionchange', () => {
         const selection = window.getSelection();
-        
+
         // 選択範囲がない、または折りたたまれている（カーソルのみ）場合はボタンを消す
         if (selection.isCollapsed) {
             quoteBtn.style.display = 'none';
@@ -125,12 +179,12 @@
         setTimeout(() => {
             const selection = window.getSelection();
             const text = selection.toString().trim();
-            
+
             // 選択テキストがあり、かつ本文エリア内の場合
             if (text.length > 0 && contentArea.contains(selection.anchorNode)) {
                 const range = selection.getRangeAt(0);
                 const rect = range.getBoundingClientRect();
-                
+
                 quoteBtn.style.display = 'block';
                 quoteBtn.style.top = (rect.top + window.scrollY - 45) + 'px';
                 quoteBtn.style.left = (rect.left + (rect.width / 2)) + 'px';
@@ -178,14 +232,16 @@
         }
     }
 
-    function openDrawer() { 
-        drawer.classList.add('active'); 
-        overlay.classList.add('active'); 
+    function openDrawer() {
+        drawer.classList.add('active');
+        overlay.classList.add('active');
+        document.body.classList.add('drawer-open'); // ←これを追加！
     }
-    
-    function closeDrawer() { 
-        drawer.classList.remove('active'); 
+
+    function closeDrawer() {
+        drawer.classList.remove('active');
         overlay.classList.remove('active');
+        document.body.classList.remove('drawer-open'); // ←これを追加！
         setTimeout(() => { clearQuote(); }, 300);
     }
 
@@ -202,10 +258,10 @@
         document.getElementById('quote-preview').style.display = 'none';
     }
 
-    function setReply(id, u) { 
-        document.getElementById('input-parent').value = id; 
-        document.getElementById('input-content').placeholder = '@' + u + ' へ返信...'; 
-        document.getElementById('input-content').focus(); 
+    function setReply(id, u) {
+        document.getElementById('input-parent').value = id;
+        document.getElementById('input-content').placeholder = '@' + u + ' へ返信...';
+        document.getElementById('input-content').focus();
     }
 
     async function submitComment(e) {
@@ -215,8 +271,51 @@
         if (res.ok) {
             const d = await res.json();
             // 簡易的なHTML追加処理
-            location.reload(); 
+            location.reload();
         }
     }
+</script>
+<script>
+    // 縦書き・横書きを切り替えるプログラム
+    function toggleWritingMode() {
+        const box = document.getElementById('novel-content');
+        const btn = document.getElementById('mode-toggle-btn');
+
+        // もし今が「縦書き」だったら、「横書き」に戻す
+        if (box.classList.contains('vertical-mode')) {
+            box.classList.remove('vertical-mode');
+            box.classList.add('horizontal-mode');
+            btn.innerHTML = '<i class="fa-solid fa-book-open"></i> 縦書きで読む';
+            btn.style.background = 'white';
+            btn.style.color = 'var(--accent)';
+        }
+        // もし今が「横書き」だったら、「縦書き」に変える
+        else {
+            box.classList.remove('horizontal-mode');
+            box.classList.add('vertical-mode');
+            btn.innerHTML = '<i class="fa-solid fa-align-left"></i> 横書きに戻す';
+            btn.style.background = 'var(--accent)';
+            btn.style.color = 'white';
+        }
+    }
+    // --- ルビと傍線の自動変換プログラム ---
+    function parseLiteraryTags() {
+        const contentBox = document.getElementById('novel-content');
+        if (!contentBox) return;
+
+        let text = contentBox.innerHTML;
+
+        // 1. ルビの変換: |漢字《かんじ》 → <ruby>漢字<rt>かんじ</rt></ruby>
+        // （※ | と 《 》 で囲まれた部分を変換します）
+        text = text.replace(/\|([^《]+)《([^》]+)》/g, '<ruby>$1<rt>$2</rt></ruby>');
+
+        // 2. 傍線の変換: 《《強調》》 → <span class="bousen">強調</span>
+        text = text.replace(/《《([^》]+)》》/g, '<span class="bousen">$1</span>');
+
+        contentBox.innerHTML = text;
+    }
+
+    // ページが開かれた瞬間に変換を実行する
+    document.addEventListener("DOMContentLoaded", parseLiteraryTags);
 </script>
 {% endblock %}

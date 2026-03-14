@@ -1,7 +1,7 @@
 /* --- 明治モダン・文芸テーマ --- */
 :root {
     /* 明治の新聞紙色（生成り） */
-    --paper: #fcf9ee; 
+    --paper: #fcf9ee;
     /* 経年変化した紙のような少し濃いベージュ（枠線など） */
     --paper-dark: #e8e4d0;
     /* 墨色（完全な黒ではなく、温かみのある黒） */
@@ -106,6 +106,19 @@ nav {
 .card-title { font-size: 1.3rem; font-weight: bold; margin: 5px 0; line-height: 1.4; }
 .card-title a { text-decoration: none; color: var(--ink); }
 .card-title a:hover { text-decoration: underline; text-decoration-color: var(--accent); }
+
+/* 一覧画面のキャプション（あらすじチラ見せ） */
+.card-caption {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 5px 0 10px 0;
+    line-height: 1.5;
+    /* ▼ 2行で「…」にする魔法 ▼ */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 
 .rank-badge {
     font-size: 1.2rem; font-weight: bold; color: var(--accent); margin-right: 10px; font-family: serif; font-style: italic;
@@ -712,19 +725,18 @@ nav {
 }
 
 /* --- 修正：ドロワーのオーバーレイ（背景クリック用） --- */
+/* 修正後（削除した状態） */
 .drawer-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(43, 43, 43, 0.2); /* 墨色を薄く */
-    backdrop-filter: blur(2px);
-    z-index: 2000; /* ドロワー(2001)より下、他より上 */
+    background: rgba(0, 0, 0, 0.2); /* ※ここを 0.2 くらいにすると、暗くなりすぎず本文がより読みやすくなります */
+    z-index: 999;
     opacity: 0;
     visibility: hidden;
-    transition: 0.3s;
-    cursor: pointer; /* クリックできることを示す */
+    transition: 0.3s ease;
 }
 .drawer-overlay.active {
     opacity: 1;
@@ -844,4 +856,169 @@ nav {
 .btn-register:hover {
     color: #ffffff !important;
     background-color: var(--accent);
+}
+
+/* ▼▼▼ スマホ用レスポンシブ対応（超強力・全ページ対応版） ▼▼▼ */
+@media screen and (max-width: 768px) {
+    /* 1. 画面全体にはみ出し防止のストッパーをかける */
+    body, html {
+        overflow-x: hidden;
+        width: 100%;
+    }
+
+    /* 2. PC用の巨大な余白（インラインスタイル）をスマホ用に強制リセット */
+    .editor-wrapper,
+    div[style*="padding: 60px 80px"],
+    div[style*="padding: 40px 20px"] {
+        padding: 20px 15px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 3. トップページの2列を1列にする */
+    .home-layout {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 30px !important;
+    }
+
+    /* 4. 管理画面やマイページの表（テーブル）を横スクロール可能にする */
+    table {
+        display: block !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch; /* スマホで滑らかにスクロール */
+    }
+    th, td {
+        white-space: nowrap; /* 表の文字が縦に細長く潰れるのを防ぐ */
+    }
+
+    /* 5. 執筆画面などの入力フォームをスマホ幅にピッタリ合わせる */
+    textarea, input[type="text"], input[type="password"], input[type="email"], input[type="number"] {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        font-size: 16px !important; /* ★iPhoneで入力時に勝手にズームされるのを防ぐ魔法 */
+    }
+
+    /* 6. 文字サイズやレイアウトの微調整 */
+    h1 {
+        font-size: 1.6rem !important;
+    }
+    .vertical-mode {
+        height: 60vh !important;
+        padding: 15px 10px !important;
+    }
+    #novel-content {
+        font-size: 0.95rem !important;
+        line-height: 1.8 !important;
+    }
+/* ▼▼ ヘッダーのスマホ大改修（修正版） ▼▼ */
+    /* 1. ヘッダーを折り返し可能（2段組）にする */
+    .nav-container {
+        flex-wrap: wrap !important;
+        padding: 15px !important;
+        gap: 15px !important;
+    }
+
+    /* 2. 検索バーを強制的に「3番目（一番下）」に移動し、横幅100%にする */
+    .nav-container form {
+        order: 3 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        display: flex !important;
+    }
+    .nav-container form input[type="text"], .nav-container form input[type="search"] {
+        width: 100% !important;
+        padding: 10px !important; /* 指でタップしやすいように */
+        box-sizing: border-box !important;
+    }
+
+    /* 3. 右側のメニュー（執筆、ログアウト等）が縦に潰れるのを防ぐ */
+    .nav-container div, .nav-container a {
+        white-space: nowrap !important; /* 文字の縦折れ防止 */
+    }
+
+    /* 検索ボタンの虫眼鏡アイコンの位置ズレを直す */
+    .nav-container form button {
+        padding: 10px 15px !important;
+    }
+    /* ▼▼▼ 執筆画面のスマホ用ドロワー（引き出し）機能 ▼▼▼ */
+/* PC画面では非表示にする部品たち */
+.mobile-settings-toggle { display: none; }
+.sidebar-overlay { display: none; }
+.sidebar-close-btn { display: none; }
+
+@media screen and (max-width: 768px) {
+    /* 1. 横並びのレイアウトを縦積みにリセット */
+    .writer-layout {
+        display: block !important;
+    }
+
+    /* 2. サイドバー（設定画面）を画面の左外に隠す */
+    .writer-sidebar {
+        position: fixed !important;
+        top: 0;
+        left: -100%; /* ここで画面外に隠しています */
+        width: 85% !important;
+        max-width: 320px;
+        height: 100vh !important;
+        z-index: 3000 !important;
+        transition: left 0.3s cubic-bezier(0.2, 0, 0, 1) !important;
+        box-shadow: 5px 0 20px rgba(0,0,0,0.2) !important;
+        padding-bottom: 80px !important; /* スクロールできるように */
+    }
+
+    /* 3. ボタンが押されて active クラスが付いた時だけシュッと出てくる */
+    .writer-sidebar.active {
+        left: 0 !important;
+    }
+
+    /* 4. メインのエディタ画面を横幅100%にして広く使う！ */
+    .writer-main {
+        width: 100% !important;
+    }
+
+    /* 5. スマホ専用の「設定を開くボタン」を表示 */
+    .mobile-settings-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: #fff;
+        border: 1px solid var(--line);
+        padding: 12px;
+        margin-bottom: 20px;
+        font-weight: bold;
+        color: var(--ink);
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        cursor: pointer;
+    }
+
+    /* 6. サイドバーを閉じる「×」ボタンを表示 */
+    .sidebar-close-btn {
+        display: block !important;
+        text-align: right;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: #999;
+        cursor: pointer;
+    }
+
+    /* 7. サイドバーが開いた時に後ろの本文を暗くする幕 */
+    .sidebar-overlay {
+        display: block;
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0,0,0,0.5);
+        z-index: 2999;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.active {
+        visibility: visible;
+        opacity: 1;
+    }
+}
 }

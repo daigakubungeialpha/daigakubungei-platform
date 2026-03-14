@@ -17,7 +17,7 @@ def create():
         novel_type = request.form.get('novel_type')
         genre = request.form.get('genre')
         tags = request.form.get('tags')
-        
+
         if novel_type == 'series':
             content = summary
         else:
@@ -26,9 +26,9 @@ def create():
         if not title:
             flash('タイトルは必須です')
             return redirect(url_for('novels.create'))
-            
+
         new_novel = Novel(
-            title=title, 
+            title=title,
             content=content,
             summary=summary,
             novel_type=novel_type,
@@ -39,13 +39,13 @@ def create():
         )
         db.session.add(new_novel)
         db.session.commit()
-        
+
         flash('作品を作成しました！')
         if novel_type == 'series':
             return redirect(url_for('novels.novel_detail', novel_id=new_novel.id))
         else:
             return redirect(url_for('main.index'))
-        
+
     return render_template('novels/create.html')
 
 # --- エピソード追加 ---
@@ -92,7 +92,15 @@ def edit(novel_id):
 # --- 詳細表示 ---
 @novels_bp.route('/<int:novel_id>')
 def novel_detail(novel_id):
-    novel = Novel.query.get_or_404(novel_id)
+    novel = Novel.query.get_or_404(novel_id)  # ←元々あるコード
+
+    novel.pv += 1
+    db.session.commit()
+
+    # ▼▼▼ ここに「PVセンサー」の2行を追加 ▼▼▼
+    novel.pv += 1
+    db.session.commit()
+    # ▲▲▲ ここまで ▲▲▲
     liked = False
     if current_user.is_authenticated:
         liked = Like.query.filter_by(user_id=current_user.id, novel_id=novel.id).first() is not None
@@ -111,7 +119,7 @@ def novel_detail(novel_id):
 def like(novel_id):
     novel = Novel.query.get_or_404(novel_id)
     existing_like = Like.query.filter_by(user_id=current_user.id, novel_id=novel.id).first()
-    
+
     if existing_like:
         db.session.delete(existing_like)
         status = 'unliked'
@@ -120,7 +128,7 @@ def like(novel_id):
         db.session.add(new_like)
         status = 'liked'
     db.session.commit()
-    
+
     # リロードなしで状態を返す
     return jsonify({
         'status': status,
@@ -138,3 +146,27 @@ def delete(novel_id):
     db.session.commit()
     flash('削除しました')
     return redirect(url_for('main.index'))
+
+    # ▼▼▼ 管理者用：PV操作機能 ▼▼▼
+from flask import request
+
+@novels_bp.route('/<int:novel_id>/update_pv', methods=['POST'])
+@login_required
+def update_pv(novel_id):
+    # 1. 神（管理者）以外の実行を弾く
+    if not current_user.is_admin:
+        return redirect(url_for('main.index'))
+
+    # 2. 対象の小説を取得して、新しいPV数を上書き保存
+    from app import db # エラー防止のためここで読み込み
+    from app.models.novel import Novel
+
+    novel = Novel.query.get_or_404(novel_id)
+    new_pv = request.form.get('new_pv', type=int)
+
+    if new_pv is not None and new_pv >= 0:
+        novel.pv = new_pv
+        db.session.commit()
+
+    # 3. ダッシュボードに戻る
+    return redirect(url_for('users.admin_dashboard'))

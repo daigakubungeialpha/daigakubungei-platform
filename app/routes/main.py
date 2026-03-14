@@ -10,7 +10,7 @@ main_bp = Blueprint('main', __name__)
 @main_bp.route('/')
 def index():
     query = request.args.get('q', '').strip()
-    
+
     if query:
         # 小説テーブルとユーザーテーブルを結合(join)して、
         # 作者名(User.username)も検索対象に含める
@@ -23,16 +23,19 @@ def index():
                 User.username.contains(query) # ★作者名でもヒットするように追加
             )
         ).order_by(Novel.created_at.desc()).all()
-        
+
         return render_template('search_results.html', novels=search_results, query=query)
 
-    # 通常表示
+    # 通常表示（最新の作品）
     latest_novels = Novel.query.filter(
         Novel.novel_type.in_(['short', 'series'])
     ).order_by(Novel.created_at.desc()).limit(6).all()
-    
+
+    # ▼▼▼ 人気作品の算出ロジックを大改造！ ▼▼▼
+    # （いいね数 × 10） ＋ PV数 の「総合スコア」が高い順に並べ替えます！
     popular_novels = db.session.query(Novel).outerjoin(Like).group_by(Novel.id).filter(
         Novel.novel_type.in_(['short', 'series'])
-    ).order_by(func.count(Like.id).desc()).limit(6).all()
-    
+    ).order_by((func.count(Like.id) * 20 + Novel.pv).desc()).limit(6).all()
+    # ▲▲▲ ここまで ▲▲▲
+
     return render_template('index.html', latest_novels=latest_novels, popular_novels=popular_novels)
